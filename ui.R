@@ -25,38 +25,50 @@ shinyUI(fluidPage(
       
         sidebarLayout(
                 sidebarPanel(
+                        # Select Data for Analysis
                         selectInput("dataset", "Choose a dataset:", 
                                     choices = c("airquality", "BioChemicalQxygen", "cars", "mpg")),
                         br(),
                         br(),
-                        
+                        # Number of observations to print
                         numericInput("obs", "Select Number of observations to view:", 5),
                                                 
                         
                         br(),
                         br(),
-                        
+                        submitButton("Update Slections"),
+                        br(),
+                        h4("Inputs for Cluster Analysis:"),
+                        h5("Select X and Y Variables for Cluster Analysis"),
                         # For clustering
-                       
-                        selectInput('xcol', 'X Variable', names(verbatimTextOutput("value"))),
-                        selectInput('ycol', 'Y Variable', names(verbatimTextOutput("value")),
-                                    selected=names(verbatimTextOutput("value"))[[2]]),
-                        numericInput('clusters', 'Cluster count', 3,
+                        uiOutput("chooseX_columns"),
+                        uiOutput("chooseY_columns"),
+                        numericInput('clusters', 'Write Number of Clusters To be Generated', 3,
                                      min = 1, max = 9),
                         br(),
-                        submitButton("Update")
+                        #Update Selection
+                        submitButton("Update Clusters"),
+                        br(),
+                        br(),
+                        a(href = "https://gist.github.com/4211337", "Source code")
                 ),
                 
                 mainPanel(
                       
                         
-                        h4("Observations"),
+                        h4("First Few Observations"),
                         tableOutput("view"),
-                        h4("Summary"),
+                        h4("Basic Summary of the Data"),
+                        br(),
                         verbatimTextOutput("summary"),
-                        h4("Graphical Representation"),
+                        h4("Graphical Representation of the Data"),
                         plotOutput("plot"),
-                        plotOutput('plot1')
+                        br(),
+                        h4("Cluster Analysis. Please select right pair of variables to get clusters."),
+                        plotOutput('plot1'),
+                        h4("Clusters:"),
+                        br(),
+                        verbatimTextOutput("kmeans_Cluster")
                 )
         )
 ))
