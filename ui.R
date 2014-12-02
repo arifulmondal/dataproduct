@@ -12,7 +12,7 @@ shinyUI(fluidPage(
         font-family: 'Lobster', cursive;
         font-weight: 500;
         line-height: 1.1;
-        color: #48ca3b;
+        color: #0000FF;
       }
 
     "))
@@ -21,13 +21,15 @@ shinyUI(fluidPage(
         
         
         # Application title.
-        headerPanel("Explanatory Analysis"),
+        headerPanel("Basic Explanatory DATA Analysis"),
       
         sidebarLayout(
                 sidebarPanel(
+                        h4("Inputs for Basic Data Analysis"),
+                        hr(),
                         # Select Data for Analysis
                         selectInput("dataset", "Choose a dataset:", 
-                                    choices = c("airquality", "BioChemicalQxygen", "cars", "mpg")),
+                                    choices = c("Insurance","airquality", "cars", "mpg")),
                         br(),
                         br(),
                         # Number of observations to print
@@ -39,6 +41,7 @@ shinyUI(fluidPage(
                         submitButton("Update Slections"),
                         br(),
                         h4("Inputs for Cluster Analysis:"),
+                        hr(),
                         h5("Select X and Y Variables for Cluster Analysis"),
                         # For clustering
                         uiOutput("chooseX_columns"),
@@ -50,12 +53,13 @@ shinyUI(fluidPage(
                         submitButton("Update Clusters"),
                         br(),
                         br(),
-                        a(href = "https://gist.github.com/4211337", "Source code")
+                        a(href = "https://github.com/arifulmondal/dataproduct", "Source code")
                 ),
                 
                 mainPanel(
-                      
-                        
+                        hr(),
+                        h4("Data Analysis"),
+                        hr(),
                         h4("First Few Observations"),
                         tableOutput("view"),
                         h4("Basic Summary of the Data"),
@@ -64,7 +68,11 @@ shinyUI(fluidPage(
                         h4("Graphical Representation of the Data"),
                         plotOutput("plot"),
                         br(),
-                        h4("Cluster Analysis. Please select right pair of variables to get clusters."),
+                        br(),
+                        hr(),
+                        h4("Cluster Analysis"),
+                        hr(),
+                        h5("Please select right pair of variables to get clusters.."),
                         plotOutput('plot1'),
                         h4("Clusters:"),
                         br(),

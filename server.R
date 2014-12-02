@@ -3,6 +3,7 @@
 library(shiny)
 library(datasets)
 require(graphics)
+library(MASS)
 
 # Define server logic required to summarize and view the 
 # selected dataset
@@ -10,9 +11,8 @@ shinyServer(function(input, output) {
         
         # datasets
         datasetInput <- reactive({
-                switch(input$dataset,
+                switch(input$dataset, "Insurance"=Insurance,
                        "airquality" = airquality,
-                       "BioChemicalQxygen" = BOD,
                        "cars" = cars,
                        "mpg"=mpg)
         })
