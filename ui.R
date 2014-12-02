@@ -25,7 +25,7 @@ shinyUI(fluidPage(
       
         sidebarLayout(
                 sidebarPanel(
-                        h4("Inputs for Basic Data Analysis"),
+                        h4("Inputs for Basic Data Analysis", style = "color:blue" ),
                         hr(),
                         # Select Data for Analysis
                         selectInput("dataset", "Choose a dataset:", 
@@ -40,7 +40,7 @@ shinyUI(fluidPage(
                         br(),
                         submitButton("Update Slections"),
                         br(),
-                        h4("Inputs for Cluster Analysis:"),
+                        h4("Inputs for Cluster Analysis:",style = "color:blue"),
                         hr(),
                         h5("Select X and Y Variables for Cluster Analysis"),
                         # For clustering
@@ -58,7 +58,7 @@ shinyUI(fluidPage(
                 
                 mainPanel(
                         hr(),
-                        h4("Data Analysis"),
+                        h4("Data Analysis",style = "color:blue"),
                         hr(),
                         h4("First Few Observations"),
                         tableOutput("view"),
@@ -70,7 +70,7 @@ shinyUI(fluidPage(
                         br(),
                         br(),
                         hr(),
-                        h4("Cluster Analysis"),
+                        h4("Cluster Analysis",style = "color:blue"),
                         hr(),
                         h5("Please select right pair of variables to get clusters.."),
                         plotOutput('plot1'),
