@@ -111,7 +111,7 @@ shinyServer(function(input, output) {
         # datasets
         datasetInput <- reactive({
                 MyData<-Dataset()
-                switch(input$dataset, "Insurance"=Insurance,
+                switch(input$dataset,  "Insurance"=Insurance,
                        "airquality" = airquality,
                        "cars" = cars,
                        "mpg"=mpg,
@@ -127,6 +127,13 @@ shinyServer(function(input, output) {
         output$summary <- renderPrint({
                 dataset <- datasetInput()
                 summary(dataset)
+                     
+        })
+        
+        # Summary
+        output$summary1 <- renderPrint({
+                dataset <- datasetInput()
+                str(dataset)
                 
         })
         
@@ -176,7 +183,10 @@ shinyServer(function(input, output) {
         # Combine the selected variables into a new data frame
         selectedData <- reactive({
                 dataset <- datasetInput()
-                dataset[, c(input$xcol, input$ycol)]
+                dataset<-dataset[, c(input$xcol, input$ycol)]
+                dataset <- na.omit(dataset) # listwise deletion of missing
+                dataset <- scale(dataset) # standardize variables
+                dataset
         })
         
              
@@ -196,10 +206,48 @@ shinyServer(function(input, output) {
         
         # Summary
         output$kmeans_Cluster <- renderPrint({
-                clusters()$cluster
+                summary(clusters()$cluster)
                 
                 
         })
         
+        # Cluster Plot against 1st 2 principal components
+        
+        # vary parameters for most readable graph
+        output$plot2 <- renderPlot({
+        library(cluster) 
+        clusplot(selectedData(), clusters()$cluster, color=TRUE, shade=TRUE, 
+                 labels=2, lines=0)
+        })
+        
+        # # Centroid Plot against 1st 2 discriminant functions
+        output$plot3 <- renderPlot({
+                library(fpc)
+                plotcluster(selectedData(), clusters()$cluster)
+        })
+        
+              
+       # Ward Hierarchical Clustering
+       whclusters <- reactive({
+       d <- dist(selectedData(), method = "euclidean") # distance matrix
+       fit <- hclust(d, method="ward") 
+       summ<-summary(fit)
+       plt<-plot(fit) # display dendogram
+       groups <- cutree(fit, k=input$clusters) # cut tree into 3 clusters by default
+       # draw dendogram with red borders around the 3 clusters  by default
+       rhc<-rect.hclust(fit, k=input$clusters, border="red")
+       }) 
        
+       output$plot4 <- renderPlot({
+               whclusters()$plt
+       })   
+       
+       # Summary
+       output$whcls_summ <- renderPrint({
+               whclusters()$summ
+               
+               
+       })
+    
+          
 })
