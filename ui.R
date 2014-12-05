@@ -121,7 +121,9 @@ shinyUI(fluidPage(
                 ),
                 
                 mainPanel(
-                        p("This is an experimental app for basic data analysis and basic kmeans cluster analysis. Some preselected data from R"),
+                        p("This is an experimental app for basic data analysis and basic kmeans cluster analysis.
+                          Some preselected datasets are used from R datasets library and you can upload your own data to do analysis. 
+                          You would need to update the selection, clusters and data using update buttons."),
                         hr(),
                         h4("Data Analysis",style = "color:blue"),
                         hr(),
@@ -137,6 +139,7 @@ shinyUI(fluidPage(
                         h4("Graphical Representation of the Data"),
                         plotOutput("plot"),
                         br(),
+                        plotOutput('plot0'),
                         br(),
                         hr(),
                         h3("Cluster Analysis",style = "color:blue"),

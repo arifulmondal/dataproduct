@@ -162,6 +162,7 @@ shinyServer(function(input, output) {
                                    selected = colnames[1])
         })
              
+      
    
         output$chooseY_columns <- renderUI({
                 # If missing input, return to avoid error later in function
@@ -179,16 +180,50 @@ shinyServer(function(input, output) {
         })
                           
       
+            
         
         # Combine the selected variables into a new data frame
         selectedData <- reactive({
                 dataset <- datasetInput()
-                dataset<-dataset[, c(input$xcol, input$ycol)]
+                dataset<- dataset[, c(input$xcol, input$ycol)]
                 dataset <- na.omit(dataset) # listwise deletion of missing
                 dataset <- scale(dataset) # standardize variables
                 dataset
         })
         
+        # plotting histogram and normal curve on the selected variables
+        
+        # Add a Normal Curve (Thanks to Peter Dalgaard)
+        output$plot0 <- renderPlot({
+               
+               dt<- selectedData()
+                x <-  dt[,c(1)]
+                y<- dt[,c(2)]
+             
+                
+                par(mfrow=c(3,2))
+                h<-hist(x, breaks=10, col="red", xlab=input$xcol, 
+                        main="Histogram with Normal Curve") 
+                xfit<-seq(min(x),max(x),length=40) 
+                yfit<-dnorm(xfit,mean=mean(x),sd=sd(x)) 
+                yfit <- yfit*diff(h$mids[1:2])*length(x) 
+                lines(xfit, yfit, col="blue", lwd=2)
+                
+                h1<-hist(y, breaks=10, col="blue", xlab=input$ycol, 
+                         main="Histogram with Normal Curve") 
+                xfit<-seq(min(y),max(y),length=40) 
+                yfit<-dnorm(xfit,mean=mean(y),sd=sd(y)) 
+                yfit <- yfit*diff(h1$mids[1:2])*length(y) 
+                lines(xfit, yfit, col="red", lwd=2)
+                
+               boxplot(x, main="Boxplot",data=dt,xlab=input$xcol,col="red")
+               boxplot(y, main="Boxplot",data=dt,xlab=input$ycol,col="blue")
+                
+               #plot(x,y, main="Scatterplot", data=dt,xlab=input$xcol, ylab=input$ycol)
+               
+               
+                
+        })
              
         clusters <- reactive({
                 #dataset <- datasetInput()
