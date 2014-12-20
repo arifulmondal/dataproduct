@@ -38,8 +38,8 @@ shinyUI(fluidPage(
                         hr(),
                         # Select Default Data for Analysis from R datasets library
                         selectInput("dataset", "Choose a dataset:", 
-                                    choices = c("Insurance","airquality", "cars", "mpg", "MyData")),
-                        br(),
+                                    choices = c("Iris","Insurance","airquality", "cars", "MyData")),
+                        h6("(Help: Please select MyData from the list to import your own dataset)", style="color:red"),
                         br(),
                         # Number of observations to print
                         numericInput("obs", "Select Number of observations to view:", 5),
@@ -62,6 +62,9 @@ shinyUI(fluidPage(
                         br(),
                         #Update Selection
                         submitButton("Update Clusters"),
+                        h6("(Help:you must click on the Update button to see the clusters. 
+                           By Default clusters are not generated. Each time you change any 
+                           selection you would need to update the clusters.)", style="color:red"),
                         br(),
                         a(href = "https://github.com/arifulmondal/dataproduct", "Source code"),
                         hr(),
@@ -116,61 +119,58 @@ shinyUI(fluidPage(
                         #Update data
                         submitButton("Update Data"),
                         hr(),
-                        p("for source code of reading/writing", a(href="https://gist.github.com/SachaEpskamp/5796467", "click here")),
+                        p("Thank You. For original source code for reading/writing files", a(href="https://gist.github.com/SachaEpskamp/5796467", "click here")),
                         hr()
                 ),
                 
                 mainPanel(
                         p("This is an experimental app for basic data analysis and basic kmeans cluster analysis.
                           Some preselected datasets are used from R datasets library and you can upload your own data to do analysis. 
-                          You would need to update the selection, clusters and data using update buttons."),
+                          You would need to update the selection, clusters and data using update buttons. To import your
+                          own data you would need to select 'MyData' and then Upload data using Menu Tab at the bottom left, once 
+                          upload is completed, update selection and then upload clusters to see the results."),
                         hr(),
                         h4("Data Analysis",style = "color:blue"),
                         hr(),
-                        h4("First Few Observations"),
-                        tableOutput("view"),
-                        h4("Basic Summary of the Data"),
-                        br(),
-                        verbatimTextOutput("summary"),
-                        br(),
-                        br(),
-                        verbatimTextOutput("summary1"),
-                        br(),
-                        h4("Graphical Representation of the Data"),
-                        plotOutput("plot"),
-                        br(),
-                        plotOutput('plot0'),
-                        br(),
-                        hr(),
-                        h3("Cluster Analysis",style = "color:blue"),
-                        hr(),
-                        h4("Kmeans Clustering",style = "color:green"),
-                        br(),
-                        h5("Please select right pair of variables to get clusters.."),
-                        plotOutput('plot1'),
-                        br(),
-                        h4("Clusters:"),
-                        br(),
-                        verbatimTextOutput("kmeans_Cluster"),
-                        br(),
-                        h4('Cluster Plot against 1st 2 principal components'),
-                        plotOutput('plot2'),
-                        br(),
-                        h4('Centroid Plot against 1st 2 discriminant functions'),
-                        plotOutput('plot3'),
+                   
+                        tabsetPanel(
+                                tabPanel("Observations", tableOutput("view")), 
+                                tabPanel("Summary", verbatimTextOutput("summary")), 
+                                tabPanel("Summary Str", verbatimTextOutput("summary1")), 
+                                tabPanel("Scatter Plots",  plotOutput("plot")),
+                                tabPanel("Correlation",  tableOutput("Corr"))
+                        )
                         
+                        
+                        br(),  
                         hr(),
-                        # Ward Hierarchical Clustering
-                        h4("Ward Hierarchical Clustering",style = "color:green"),
-                        hr(),
-                                             
-                        plotOutput('plot4'),
-                                            
-                        br(),
-                       # verbatimTextOutput('whcls_summ'),
+                        h4("Search in Data", style="color:blue"),
+                        tabsetPanel( tabPanel('Display Data', dataTableOutput('DataPage'))),
                       
-                        br(),
+                        hr(),
+                        # K-means Cluster Analysis
+                        h4("K-Means Clustering (2-Variables only)",style = "color:blue"),
+                        h6("(Help:Please click on 'Update Clusters' to see results)",style = "color:red"),
+                        tabsetPanel(
+                                tabPanel("Distribution",     plotOutput('plot0')), 
+                                tabPanel("K-Means", plotOutput('plot1')), 
+                                tabPanel("K-means Summary",  verbatimTextOutput("kmeans_Cluster")), 
+                                tabPanel("Principal Components",  plotOutput("plot2")),
+                                tabPanel("Centroid Plot",  plotOutput("plot3"))
+                        ),
                         
+                        hr(),
+                                              
+                        # Ward Hierarchical Clustering
+                        h4("Ward Hierarchical Clustering",style = "color:blue"),
+                        h6("(Help:Please click on 'Update Clusters' to see results)",style = "color:red"),
+                                    
+                        tabsetPanel(
+                              tabPanel("Dendogram",  plotOutput("plot4"))
+                        ),
+                   
+                        br(),
+                                         
                         p("To know more about shiny app", a(href = "http://shiny.rstudio.com/", "click here"))
                 )
         )

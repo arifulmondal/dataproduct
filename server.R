@@ -1,9 +1,6 @@
 # server.R
 
-library(shiny)
-library(datasets)
-require(graphics)
-library(MASS)
+
 
 # Define server logic required to summarize and view the 
 # selected dataset
@@ -111,17 +108,26 @@ shinyServer(function(input, output) {
         # datasets
         datasetInput <- reactive({
                 MyData<-Dataset()
-                switch(input$dataset,  "Insurance"=Insurance,
+                switch(input$dataset, "Iris"=iris, "Insurance"=Insurance,
                        "airquality" = airquality,
                        "cars" = cars,
-                       "mpg"=mpg,
                        "MyData"= MyData)
         })
         
         # Show the first "n" observations
         output$view <- renderTable({
-                head(datasetInput(), n = input$obs)
+              
+                head(datasetInput(), n = input$obs) 
+                      
+                
         })
+        
+        # display 10 rows initially
+        output$DataPage <- renderDataTable(datasetInput(), options = list(pageLength = 10))
+        
+        # Correlation
+        output$Corr <- renderTable({cor(datasetInput())})
+     
         
         # Summary
         output$summary <- renderPrint({
@@ -140,55 +146,59 @@ shinyServer(function(input, output) {
         # plot
         output$plot <- renderPlot({
                 dataset <- datasetInput()
-                plot(dataset)
+                colors<-c("red", "yellow", "green", "violet", "orange", "blue", "pink", "cyan")
+                plot(dataset, col=colors)
                 
         })
         
+        NumColNames<-reactive({
+                # If missing input, return to avoid error later in function
+                if(is.null(datasetInput()))
+                        return()
+                
+                # Get the data set with the appropriate name
+                dat <-datasetInput()[1,]
+                nums<-sapply(dat,is.numeric)
+                dat<- dat[,nums]
+                colnames <- names(dat)
+                return(colnames)
+                
+        })
         
         # value-selected dataset
         # Check boxes
         output$chooseX_columns <- renderUI({
-                # If missing input, return to avoid error later in function
-                if(is.null(datasetInput()))
-                        return()
-                
-                # Get the data set with the appropriate name
-                dat <- datasetInput()
-                colnames <- names(dat)
+               
                 
                 # Create the checkboxes and select them all by default
-                selectInput("xcol", "Choose X columns", 
-                                   choices  = colnames,
-                                   selected = colnames[1])
+                selectInput("xcol", "Choose Column 1", 
+                                   choices  = NumColNames(),
+                                   selected = NumColNames()[1])
         })
              
       
    
-        output$chooseY_columns <- renderUI({
-                # If missing input, return to avoid error later in function
-                if(is.null(datasetInput()))
-                        return()
-                
-                # Get the data set with the appropriate name
-                dat <- datasetInput()
-                colnames <- names(dat)
+        output$chooseY_columns <- renderUI({   
                 
                 # Create the checkboxes and select them all by default
-                selectInput("ycol", "Choose Y columns", 
-                            choices  = colnames,
-                            selected = colnames[2])
+                selectInput("ycol", "Choose Column 2", 
+                            choices  = NumColNames(),
+                            selected = NumColNames()[2])
         })
-                          
-      
-            
-        
+ 
         # Combine the selected variables into a new data frame
         selectedData <- reactive({
                 dataset <- datasetInput()
                 dataset<- dataset[, c(input$xcol, input$ycol)]
                 dataset <- na.omit(dataset) # listwise deletion of missing
                 dataset <- scale(dataset) # standardize variables
-                dataset
+                return(dataset)
+        })
+        
+        #kMeans Clustering
+        clusters <- reactive({
+                #dataset <- datasetInput()
+                kmeans(selectedData(), input$clusters)
         })
         
         # plotting histogram and normal curve on the selected variables
@@ -200,16 +210,16 @@ shinyServer(function(input, output) {
                 x <-  dt[,c(1)]
                 y<- dt[,c(2)]
              
-                
+               colors<-c("red", "yellow", "green", "violet", "orange", "blue", "pink", "cyan")
                 par(mfrow=c(3,2))
-                h<-hist(x, breaks=10, col="red", xlab=input$xcol, 
+                h<-hist(x, breaks=10, col=colors, xlab=input$xcol, 
                         main="Histogram with Normal Curve") 
                 xfit<-seq(min(x),max(x),length=40) 
                 yfit<-dnorm(xfit,mean=mean(x),sd=sd(x)) 
                 yfit <- yfit*diff(h$mids[1:2])*length(x) 
                 lines(xfit, yfit, col="blue", lwd=2)
                 
-                h1<-hist(y, breaks=10, col="blue", xlab=input$ycol, 
+                h1<-hist(y, breaks=10, col=colors, xlab=input$ycol, 
                          main="Histogram with Normal Curve") 
                 xfit<-seq(min(y),max(y),length=40) 
                 yfit<-dnorm(xfit,mean=mean(y),sd=sd(y)) 
@@ -225,11 +235,7 @@ shinyServer(function(input, output) {
                 
         })
              
-        clusters <- reactive({
-                #dataset <- datasetInput()
-                kmeans(selectedData(), input$clusters)
-        })
-        
+             
         output$plot1 <- renderPlot({
                 #dataset <- datasetInput()
                 par(mar = c(5.1, 4.1, 0, 1))
@@ -265,7 +271,7 @@ shinyServer(function(input, output) {
        # Ward Hierarchical Clustering
        whclusters <- reactive({
        d <- dist(selectedData(), method = "euclidean") # distance matrix
-       fit <- hclust(d, method="ward") 
+       fit <- hclust(d, method="ward.D2") 
        summ<-summary(fit)
        plt<-plot(fit) # display dendogram
        groups <- cutree(fit, k=input$clusters) # cut tree into 3 clusters by default
